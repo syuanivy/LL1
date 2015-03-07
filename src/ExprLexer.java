@@ -22,47 +22,70 @@ public class ExprLexer extends Lexer {
 
     public ExprLexer(Reader reader) throws IOException {
         super(reader);
-
     }
 
     @Override
     public Token nextToken() throws IOException {
-        text.setLength(0); // reset text
-        int type = Token.INVALID_TYPE;
+        while(c != -1){
+            switch(c){
+                case ' ': case '\t': case '\n': case '\r': WS(); continue;
+                case '+': nextChar(); return new Token(PLUS,"+");
+                case '*': nextChar(); return new Token(MULT,"*");
+                case '(': nextChar(); return new Token(LPAREN,"(");
+                case ')': nextChar(); return new Token(RPAREN,")");
+                default:
+                    if(isLetter()) return matchID();
+                    if(isNumber()) return matchINT();
+                    else return INVALID();
+            }
+        }
+        return new Token(Token.EOF_TYPE, "<EOF>");
+    }
 
-        // ...
-        if (c == -1) {return new Token(Token.EOF_TYPE, null ); }
-        if(c == '+') {type = PLUS; text.append('+');}
-        else if (c == '*') {type = MULT; text.append('*');}
-        else if (c =='(')  {type = LPAREN; text.append('(');}
-        else if (c == ')') {type = RPAREN; text.append(')');}
-        consume();
-        if ( type==0 ) {
-            System.err.println("illegal char: "+c);
+    Token matchINT() throws IOException{
+        StringBuilder buf = new StringBuilder();
+        do{
+            buf.append((char) c);
             nextChar();
-            // try again (tail recursion is like a loop)
-            return nextToken();
-        }
-        return new Token(type, text.toString());
+        }while(isNumber());
+        return new Token(INT, buf.toString());
     }
 
-    protected int matchINT() throws IOException {
-        text.append((char)c);
-        consume();
-        while(c != -1 && c >='0' && c <='9'){
-            text.append((char)c);
-            consume();
-        }
-        return INT;
+    boolean isNumber(){
+        return c>='0' && c<='9';
     }
 
-    protected int matchID() throws IOException {
-        return ID;
+    Token matchID() throws IOException {
+        StringBuilder buf = new StringBuilder();
+        do{
+            buf.append((char)c);
+            nextChar();
+        }while(isLetter());
+        return new Token(ID, buf.toString());
+    }
+
+    boolean isLetter(){
+        return c>='a' && c<='z'
+                || c>='A'&& c<='Z';
+    }
+
+    Token INVALID() throws IOException{
+        System.err.println("invalid character: " + c);
+        Token invalid =  new Token(Token.INVALID_TYPE, String.valueOf((char)c));
+        nextChar();
+        return invalid;
+
+
+    }
+
+    void WS()throws IOException{
+        while(c == ' '|| c == '\t'
+                || c == '\n' || c =='\r')
+            nextChar();
     }
 
     public static void main(String[] args) throws IOException {
         readAndPrint(new ExprLexer(new InputStreamReader(System.in)));
     }
 
-    public void consume(){}
 }

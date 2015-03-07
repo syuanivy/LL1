@@ -48,7 +48,7 @@ public class Parser {
     }
 
     protected void match(int type) {
-        //System.out.println("match "+type+" with "+tokens[p]);
+        System.out.println("match "+type+" with "+tokens[p]);
         if ( tokens[p].type!=type ) {
             throw new RuntimeException("token mismatch: expecting token type "+type+"; found "+
                     token().text);

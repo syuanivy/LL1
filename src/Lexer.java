@@ -16,9 +16,9 @@ public abstract class Lexer implements TokenSource {
         this.reader = reader;
         nextChar();
     }
-
+    //consume()
     protected void nextChar() throws IOException {
-        c = (char)reader.read();
+        c = reader.read();
     }
 
     public abstract Token nextToken() throws IOException;
@@ -26,7 +26,7 @@ public abstract class Lexer implements TokenSource {
     public static void readAndPrint(Lexer scanner) throws IOException {
         Token t = scanner.nextToken();
         while ( t.type!=Token.EOF_TYPE ) {
-            System.out.println(t);
+            System.out.println(t.toString());
             t = scanner.nextToken();
         }
     }

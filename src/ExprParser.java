@@ -1,6 +1,7 @@
 /**
  * Created by ivy on 3/4/15.
  */
+
 import java.io.IOException;
 
 /** Parse according to this grammar:
@@ -15,6 +16,11 @@ public class ExprParser extends Parser {
 
     /**  expr : term ('+' term)* ; */
     public void expr() {
+        term();
+        while(lookahead() == ExprLexer.PLUS){
+            match(ExprLexer.PLUS);
+            term();
+        }
     }
 
     /** term : factor ('*' factor)* ; */
@@ -23,11 +29,8 @@ public class ExprParser extends Parser {
         while(lookahead()  == ExprLexer.MULT){
             match(ExprLexer.MULT);
             factor();
-
         }
-
     }
-
 
     /** factor : ID | INT | '(' expr ')' */
     public void factor() {
@@ -35,10 +38,18 @@ public class ExprParser extends Parser {
             case ExprLexer.ID:
                 match(ExprLexer.ID);
                 break;
-            //..
+            case ExprLexer.INT:
+                match(ExprLexer.INT);
+                break;
+            case ExprLexer.LPAREN:
+                expr();
+                match(ExprLexer.RPAREN);
+                break;
             default:
                 throw new RuntimeException("Token" +token() + "is not valid.");
 
         }
     }
+
+
 }
